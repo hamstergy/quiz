@@ -1,14 +1,23 @@
 {
   "development": {
-    "dialect": "sqlite",
-    "storage": "./database.sqlite3"
+    "username": "root",
+    "password": "910612hamster",
+    "database": "quiz",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
   },
   "test": {
-    "dialect": "sqlite",
-    "storage": ":memory"
+    "username": "root",
+    "password": "910612hamster",
+    "database": "quiz",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
   },
   "production": {
-    "dialect": "sqlite",
-    "storage": "./database.sqlite3"
+    "username": "root",
+    "password": "910612hamster",
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
   }
 }

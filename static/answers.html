@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Surveys</title>
+  <title>Answers</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17-beta.0/vue.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -21,33 +21,42 @@
 <body>
   <div id="app" class="container">
     <section class="section section-container" style="padding-top: 24px; padding-bottom: 5px;">
-        <h2 class="title">Опросы</h2>
-        <survey v-for="survey in surveys"
-            :key="survey.name"
-            :survey="survey"
-            @save-survey="onAddOrUpdateSurvey" 
-            @delete-survey="deleteSurvey" />
+        <h2 class="title">Ответы</h2>
+        <answer v-for="answer in answers"
+            :key="answer.name"
+            :answer="answer"
+            @save-answer="onAddOrUpdateAnswer" 
+            @delete-answer="deleteAnswer" />
     </section>
     <section class="section section-container" style="padding-bottom: 10px;">
       <div class="box">
-        <add-update-survey title="Добавить опрос" @save-survey="onAddOrUpdateSurvey" />
+        <add-update-answer title="Добавить Ответ" @save-answer="onAddOrUpdateAnswer" />
       </div>
     </section>
   </div>
   <script>
-  const AddUpdateSurvey = {
-    props: ['survey', 'title'],
+  const AddUpdateAnswer = {
+    props: ['answer', 'title'],
     data () {
       return {
-        id: this.survey ? this.survey.id : null,
-        name: this.survey ? this.survey.name : ''
+        id: this.answer ? this.answer.id : null,
+        name: this.answer ? this.answer.name : '',
+        checked: false,
+        questionId: ''
       }
+    },
+    created: function(){
+      var pageURL =  window.location.href;
+      var lastURLSegment = pageURL.substr(pageURL.lastIndexOf('/') + 1);
+      this.questionId = lastURLSegment;
     },
     methods: {
       save() {
-        this.$emit('save-survey', { id: this.id, name: this.name })
+        this.$emit('save-answer', { id: this.id, name: this.name, checked: this.checked, questionId: this.questionId})
         if (!this.id) {
           this.name = ''
+        //   this.checked = false
+          // this.surveyId = ''
         }
       }
     },
@@ -69,44 +78,41 @@
     `
   }
 
-  const Survey = {
-    props: ['survey'],
-    components: { 'add-update-survey': AddUpdateSurvey },
+  const Answer = {
+    props: ['answer'],
+    components: { 'add-update-answer': AddUpdateAnswer },
     data () {
       return {
         showDetail: false
       }
     },
     methods: {
-      onAddOrUpdateSurvey(survey) {
-        this.$emit('save-survey', survey)
+      onAddOrUpdateAnswer(answer) {
+        this.$emit('save-answer', answer)
       },
-      deleteSurvey (survey) {
-        this.$emit('delete-survey', survey)
-      },
-      goTo (id) {
-        window.location.href = '/survey/' + id;
+      deleteAnswer (answer) {
+        this.$emit('delete-answer', answer)
       }
     },
     template: `
       <div class="card">
         <header class="card-header">
-          <p class="card-header-title" @click="goTo(survey.id)">
-            {{ survey.name }}
+          <p class="card-header-title">
+            {{ answer.name }}
           </p>
           <a class="card-header-icon" @click="showDetail = !showDetail">
             <span class="icon">
               <i class="fa fa-edit"></i>
             </span>
           </a>
-          <a class="card-header-icon" @click.stop="deleteSurvey(survey)">
+          <a class="card-header-icon" @click.stop="deleteAnswer(answer)">
             <span class="icon">
               <i class="fa fa-trash"></i>
             </span>
           </a>
         </header>
         <div v-show="showDetail" class="card-content">
-            <add-update-survey title="Details" :survey="survey" @save-survey="onAddOrUpdateSurvey" />
+            <add-update-answer title="Details" :answer="answer" @save-answer="onAddOrUpdateAnswer" />
         </div>
       </div>
     `
@@ -115,51 +121,59 @@
 
   new Vue({
     el: '#app',
-    components: { survey: Survey, 'add-update-survey': AddUpdateSurvey },
+    components: { answer: Answer, 'add-update-answer': AddUpdateAnswer },
     data: {
-      surveys: [],
-      apiURL: '/api/surveys',
+      answers: [],
+      apiURL: '/api/answers'
     },
     methods: {
-      onAddOrUpdateSurvey (survey) {
-        if (survey.id) {
-          this.updateSurvey(survey)
+      onAddOrUpdateAnswer (answer) {
+        if (answer.id) {
+          this.updateAnswer(answer)
         } else {
-          this.addSurvey(survey)
+          this.addAnswer(answer)
         }
       },
-      addSurvey (survey) {
-        return axios.post(this.apiURL, survey)
+      addAnswer (answer) {
+        return axios.post(this.apiURL, answer)
           .then((response) => {
-            const copy = this.surveys.slice()
+            const copy = this.answers.slice()
             copy.push(response.data)
-            this.surveys = copy
+            this.answers = copy
           })
       },
-      updateSurvey (survey) {
-        return axios.put(`${this.apiURL}/${survey.id}`, survey)
+      updateAnswer (answer) {
+        return axios.put(`${this.apiURL}/${answer.id}`, answer)
           .then((response) => {
-            const copy = this.surveys.slice()
+            const copy = this.answers.slice()
             const idx = copy.findIndex((c) => c.id === response.data.id)
             copy[idx] = response.data
-            this.surveys = copy
+            this.answers = copy
           })
       },
-      deleteSurvey (survey) {
-        console.log('deleting', survey)
-        return axios.delete(`${this.apiURL}/${survey.id}`)
+      deleteAnswer (answer) {
+        console.log('deleting', answer)
+        return axios.delete(`${this.apiURL}/${answer.id}`)
           .then((response) => {
-            let copy = this.surveys.slice()
+            let copy = this.answers.slice()
             const idx = copy.findIndex((c) => c.id === response.data.id)
             copy.splice(idx, 1)
-            this.surveys = copy
+            this.answers = copy
           })
       }
     },
     beforeMount () {
+      var pageURL =  window.location.href;
+      var idUrl = pageURL.substr(pageURL.lastIndexOf('/') + 1);
       axios.get(this.apiURL)
         .then((response) => {
-          this.surveys = response.data
+          const q = []
+          response.data.forEach(function(element) {
+            if (element.questionId == idUrl) {
+              q.push(element);
+            }
+          });
+          this.answers = q
         })
     }
   })

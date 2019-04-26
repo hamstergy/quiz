@@ -1,0 +1,193 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Questions</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17-beta.0/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    .section-container {
+      max-width: 800px;
+      margin-right: auto;
+      margin-left: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <section class="section section-container" style="padding-top: 24px; padding-bottom: 5px;">
+        <h2 class="title">Вопросы</h2>
+        <question v-for="question in questions"
+            :key="question.name"
+            :question="question"
+            @save-question="onAddOrUpdateQuestion" 
+            @delete-question="deleteQuestion" />
+    </section>
+    <section class="section section-container" style="padding-bottom: 10px;">
+      <div class="box">
+        <add-update-question title="Добавить вопрос" @save-question="onAddOrUpdateQuestion" />
+      </div>
+    </section>
+  </div>
+  <script>
+  const AddUpdateQuestion = {
+    props: ['question', 'title'],
+    data () {
+      return {
+        id: this.question ? this.question.id : null,
+        name: this.question ? this.question.name : '',
+        type: this.question ? this.question.type : '',
+        surveyId: ''
+      }
+    },
+    created: function(){
+      var pageURL =  window.location.href;
+      var lastURLSegment = pageURL.substr(pageURL.lastIndexOf('/') + 1);
+      this.surveyId = lastURLSegment;
+    },
+    methods: {
+      save() {
+        this.$emit('save-question', { id: this.id, name: this.name, type: this.type, surveyId: this.surveyId})
+        if (!this.id) {
+          this.name = '',
+          this.type = ''
+          // this.surveyId = ''
+        }
+      }
+    },
+    template: `
+      <form class="form" @submit.prevent="save">
+        <h3 class='subtitle'>{{ title }}</h3>
+        <div class="field">
+            <label>Название опроса</label>
+            <div class="control">
+              <input class="input" type="text" v-model="name">
+            </div> 
+        </div>
+        <div class="field">
+            <label>Тип опроса</label>
+            <div class="control">
+              <input class="input" type="text" v-model="type">
+            </div> 
+        </div>
+        <div class="field">
+            <div class="control">
+              <button class="button is-success">Сохранить</button>
+            </div> 
+        </div>
+      </form>
+    `
+  }
+
+  const Question = {
+    props: ['question'],
+    components: { 'add-update-question': AddUpdateQuestion },
+    data () {
+      return {
+        showDetail: false
+      }
+    },
+    methods: {
+      onAddOrUpdateQuestion(question) {
+        this.$emit('save-question', question)
+      },
+      deleteQuestion (question) {
+        this.$emit('delete-question', question)
+      },
+      goTo (id) {
+        window.location.href = '/question/' + id;
+      }
+    },
+    template: `
+      <div class="card">
+        <header class="card-header">
+          <p class="card-header-title" @click="goTo(question.id)">
+            {{ question.name }}
+          </p>
+          <a class="card-header-icon" @click="showDetail = !showDetail">
+            <span class="icon">
+              <i class="fa fa-edit"></i>
+            </span>
+          </a>
+          <a class="card-header-icon" @click.stop="deleteQuestion(question)">
+            <span class="icon">
+              <i class="fa fa-trash"></i>
+            </span>
+          </a>
+        </header>
+        <div v-show="showDetail" class="card-content">
+            <add-update-question title="Details" :question="question" @save-question="onAddOrUpdateQuestion" />
+        </div>
+      </div>
+    `
+  }
+
+
+  new Vue({
+    el: '#app',
+    components: { question: Question, 'add-update-question': AddUpdateQuestion },
+    data: {
+      questions: [],
+      apiURL: '/api/questions'
+    },
+    methods: {
+      onAddOrUpdateQuestion (question) {
+        if (question.id) {
+          this.updateQuestion(question)
+        } else {
+          this.addQuestion(question)
+        }
+      },
+      addQuestion (question) {
+        return axios.post(this.apiURL, question)
+          .then((response) => {
+            const copy = this.questions.slice()
+            copy.push(response.data)
+            this.questions = copy
+          })
+      },
+      updateQuestion (question) {
+        return axios.put(`${this.apiURL}/${question.id}`, question)
+          .then((response) => {
+            const copy = this.questions.slice()
+            const idx = copy.findIndex((c) => c.id === response.data.id)
+            copy[idx] = response.data
+            this.questions = copy
+          })
+      },
+      deleteQuestion (question) {
+        console.log('deleting', question)
+        return axios.delete(`${this.apiURL}/${question.id}`)
+          .then((response) => {
+            let copy = this.questions.slice()
+            const idx = copy.findIndex((c) => c.id === response.data.id)
+            copy.splice(idx, 1)
+            this.questions = copy
+          })
+      }
+    },
+    beforeMount () {
+      var pageURL =  window.location.href;
+      var idUrl = pageURL.substr(pageURL.lastIndexOf('/') + 1);
+      axios.get(this.apiURL)
+        .then((response) => {
+          const q = []
+          response.data.forEach(function(element) {
+            if (element.surveyId == idUrl) {
+              q.push(element);
+            }
+          });
+          this.questions = q
+        })
+    }
+  })
+
+  </script>
+</body>
+</html>
+
