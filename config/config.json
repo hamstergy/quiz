@@ -1,22 +1,22 @@
 {
   "development": {
     "username": "root",
-    "password": "910612hamster",
+    "password": "fdsWSkljnf12dc",
     "database": "quiz",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
-    "password": "910612hamster",
+    "password": "fdsWSkljnf12dc",
     "database": "quiz",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
-    "password": "910612hamster",
-    "database": "database_production",
+    "password": "fdsWSkljnf12dc",
+    "database": "quiz",
     "host": "127.0.0.1",
     "dialect": "mysql"
   }

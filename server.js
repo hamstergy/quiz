@@ -5,8 +5,18 @@ const bodyParser = require('body-parser');
 const db = require('./models');
 
 const app = express();
+const cors = require('cors');
+const https = require('https');
+const fs = require('fs');
+
+const options = {
+    key: fs.readFileSync('keys/key.pem'),
+    cert: fs.readFileSync('keys/cert.pem'),
+    passphrase: '123_abc',
+};
 
 app.use(bodyParser.json());
+app.use(cors());
 app.use(express.static(__dirname + '/static'));
 
 app.get('/api/all', (req,res) => {
@@ -163,6 +173,10 @@ app.route('/question/:id')
     res.sendFile(__dirname+'/static/answers.html');
   });
 
-app.listen(3000, () => {
-  console.log('Server is up on port 3000');
+https.createServer(options, app).listen(9002, () => {
+    console.log('Server start');
 });
+
+//app.listen(9002, () => {
+//  console.log('Server is up on port 9002');
+//});
