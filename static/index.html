@@ -86,14 +86,22 @@
       },
       goTo (id) {
         window.location.href = '/survey/' + id;
-      }
+	  },
+	  goToRespondent (id) {
+        window.location.href = '/respondent/' + id;
+	  },
     },
     template: `
       <div class="card">
         <header class="card-header">
           <p class="card-header-title" @click="goTo(survey.id)">
             {{ survey.name }}
-          </p>
+		  </p>
+		  <a class="card-header-icon" @click="goToRespondent(survey.id)">
+            <span class="icon">
+              <i class="fa fa-list"></i>
+            </span>
+          </a>
           <a class="card-header-icon" @click="showDetail = !showDetail">
             <span class="icon">
               <i class="fa fa-edit"></i>

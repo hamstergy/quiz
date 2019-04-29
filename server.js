@@ -160,6 +160,37 @@ app.put('/api/answers/:id', (req, res) => {
   })
 });
 
+//RespondentAnswer
+
+app.get('/api/respondents', (req, res) => {
+	return db.RespondentAnswer.findAll()
+	  .then((respondentAnswers) => res.send(respondentAnswers))
+	  .catch((err) => {
+		console.log('There was an error querying answers', JSON.stringify(err))
+		return res.send(err)
+	  });
+  });
+  
+app.post('/api/respondents', (req, res) => {
+	const { name, content, surveyId } = req.body
+	return db.RespondentAnswer.create({ name, content, surveyId })
+	  .then((respondentAnswer) => res.send(respondentAnswer))
+	  .catch((err) => {
+		console.log('***There was an error creating a answer', JSON.stringify(err))
+		return res.status(400).send(err)
+	  })
+});
+
+app.delete('/api/respondents/:id', (req, res) => {
+	const id = parseInt(req.params.id)
+	return db.RespondentAnswer.findById(id)
+	  .then((respondentAnswer) => respondentAnswer.destroy({ force: true }))
+	  .then(() => res.send({ id }))
+	  .catch((err) => {
+		console.log('***Error deleting answer', JSON.stringify(err))
+		res.status(400).send(err)
+	  })
+  });
 
 //Routing
 
@@ -167,6 +198,10 @@ app.route('/survey/:id')
   .get(function(req, res) {
     res.sendFile(__dirname+'/static/questions.html');
   });
+app.route('/respondent/:id')
+  .get(function(req, res) {
+    res.sendFile(__dirname+'/static/respondent.html');
+});
 
 app.route('/question/:id')
   .get(function(req, res) {

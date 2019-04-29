@@ -5,7 +5,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Survey.associate = function(models) {
     // Survey.hasMany(models.Question);
-    Survey.hasMany(models.Question, {foreignKey: 'surveyId', onDelete: 'cascade', hooks: true, sourceKey: 'id'});
+	Survey.hasMany(models.Question, {foreignKey: 'surveyId', onDelete: 'cascade', hooks: true, sourceKey: 'id'});
+	Survey.hasMany(models.RespondentAnswer, {foreignKey: 'surveyId', onDelete: 'cascade', hooks: true, sourceKey: 'id'});
   };
   return Survey;
 };

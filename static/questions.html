@@ -42,7 +42,20 @@
         id: this.question ? this.question.id : null,
         name: this.question ? this.question.name : '',
         type: this.question ? this.question.type : '',
-        surveyId: ''
+		surveyId: '',
+		typeOptions: [
+			{ text: 'Выберите тип вопроса', value: '' },
+			{ text: 'Текст (однострочный)', value: 0 },
+			{ text: 'Текст (многострочный)', value: 1 },
+			{ text: 'Email адрес', value: 2 },
+			{ text: 'ИНН (12 чисел)', value: 3 },
+			{ text: 'Целое число', value: 4 },
+			{ text: 'Вещественное число', value: 5 },
+			{ text: 'Список ответов (один вариант ответа)', value: 6 },
+			{ text: 'Дата', value: 7 },
+			{ text: 'Телефон', value: 8 },
+			{ text: 'Список ответов (много вариантов ответа)', value: 9 }
+		]
       }
     },
     created: function(){
@@ -70,9 +83,12 @@
             </div> 
         </div>
         <div class="field">
-            <label>Тип опроса</label>
-            <div class="control">
-              <input class="input" type="text" v-model="type">
+            <div class="select is-fullwidth">
+				<select v-model="type">
+					<option v-for="option in typeOptions" v-bind:value="option.value">
+						{{ option.text }}
+					</option>
+				</select>
             </div> 
         </div>
         <div class="field">
@@ -99,14 +115,16 @@
       deleteQuestion (question) {
         this.$emit('delete-question', question)
       },
-      goTo (id) {
-        window.location.href = '/question/' + id;
+      goTo (id,type) {
+		if (type == 9 || type == 6){
+			window.location.href = '/question/' + id;
+		}
       }
     },
     template: `
       <div class="card">
         <header class="card-header">
-          <p class="card-header-title" @click="goTo(question.id)">
+          <p class="card-header-title" @click="goTo(question.id, question.type)">
             {{ question.name }}
           </p>
           <a class="card-header-icon" @click="showDetail = !showDetail">

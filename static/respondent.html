@@ -1,0 +1,182 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>RespondentAnswers</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17-beta.0/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    .section-container {
+      max-width: 800px;
+      margin-right: auto;
+      margin-left: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <section class="section section-container" style="padding-top: 24px; padding-bottom: 5px;">
+        <h2 class="title">Ответы респондентов</h2>
+        <respondentanswer v-for="respondentanswer in respondentanswers"
+            :key="respondentanswer.name"
+            :respondentanswer="respondentanswer"
+            @save-respondentanswer="onAddOrUpdateRespondentAnswer" 
+            @delete-respondentanswer="deleteRespondentAnswer" />
+    </section>
+    <!-- <section class="section section-container" style="padding-bottom: 10px;">
+      <div class="box">
+        <add-update-respondentanswer title="Добавить вопрос" @save-respondentanswer="onAddOrUpdateRespondentAnswer" />
+      </div>
+    </section> -->
+  </div>
+  <script>
+  const AddUpdateRespondentAnswer = {
+    props: ['respondentanswer', 'title'],
+    data () {
+      return {
+        id: this.respondentanswer ? this.respondentanswer.id : null,
+        name: this.respondentanswer ? this.respondentanswer.name : '',
+        content: this.respondentanswer ? this.respondentanswer.content : '',
+		surveyId: '',
+      }
+    },
+    created: function(){
+      var pageURL =  window.location.href;
+      var lastURLSegment = pageURL.substr(pageURL.lastIndexOf('/') + 1);
+      this.surveyId = lastURLSegment;
+    },
+    methods: {
+      save() {
+        this.$emit('save-respondentanswer', { id: this.id, name: this.name, content: this.content, surveyId: this.surveyId})
+        if (!this.id) {
+          this.name = '',
+          this.content = ''
+        }
+      }
+    },
+    template: `
+      <form class="form" @submit.prevent="save">
+        <h3 class='subtitle'>{{ title }}</h3>
+        <div class="field">
+            <div class="control">
+              {{this.content}}
+            </div> 
+        </div>
+      </form>
+    `
+  }
+
+  const RespondentAnswer = {
+    props: ['respondentanswer'],
+    components: { 'add-update-respondentanswer': AddUpdateRespondentAnswer },
+    data () {
+      return {
+        showDetail: false
+      }
+    },
+    methods: {
+      onAddOrUpdateRespondentAnswer(respondentanswer) {
+        this.$emit('save-respondentanswer', respondentanswer)
+      },
+      deleteRespondentAnswer (respondentanswer) {
+        this.$emit('delete-respondentanswer', respondentanswer)
+      },
+      goTo (id) {
+		if (type == 9 || type == 6){
+			window.location.href = '/respondentanswer/' + id;
+		}
+      }
+    },
+    template: `
+      <div class="card">
+        <header class="card-header">
+          <p class="card-header-title">
+            {{ respondentanswer.name }}
+          </p>
+          <a class="card-header-icon" @click="showDetail = !showDetail">
+            <span class="icon">
+              <i class="fa fa-eye"></i>
+            </span>
+          </a>
+          <a class="card-header-icon" @click.stop="deleteRespondentAnswer(respondentanswer)">
+            <span class="icon">
+              <i class="fa fa-trash"></i>
+            </span>
+          </a>
+        </header>
+        <div v-show="showDetail" class="card-content">
+            <add-update-respondentanswer title="Ответы респондента" :respondentanswer="respondentanswer" @save-respondentanswer="onAddOrUpdateRespondentAnswer" />
+        </div>
+      </div>
+    `
+  }
+
+
+  new Vue({
+    el: '#app',
+    components: { respondentanswer: RespondentAnswer, 'add-update-respondentanswer': AddUpdateRespondentAnswer },
+    data: {
+      respondentanswers: [],
+      apiURL: '/api/respondents'
+    },
+    methods: {
+      onAddOrUpdateRespondentAnswer (respondentanswer) {
+        if (respondentanswer.id) {
+          this.updateRespondentAnswer(respondentanswer)
+        } else {
+          this.addRespondentAnswer(respondentanswer)
+        }
+      },
+      addRespondentAnswer (respondentanswer) {
+        return axios.post(this.apiURL, respondentanswer)
+          .then((response) => {
+            const copy = this.respondentanswers.slice()
+            copy.push(response.data)
+            this.respondentanswers = copy
+          })
+      },
+      updateRespondentAnswer (respondentanswer) {
+        return axios.put(`${this.apiURL}/${respondentanswer.id}`, respondentanswer)
+          .then((response) => {
+            const copy = this.respondentanswers.slice()
+            const idx = copy.findIndex((c) => c.id === response.data.id)
+            copy[idx] = response.data
+            this.respondentanswers = copy
+          })
+      },
+      deleteRespondentAnswer (respondentanswer) {
+        console.log('deleting', respondentanswer)
+        return axios.delete(`${this.apiURL}/${respondentanswer.id}`)
+          .then((response) => {
+            let copy = this.respondentanswers.slice()
+            const idx = copy.findIndex((c) => c.id === response.data.id)
+            copy.splice(idx, 1)
+            this.respondentanswers = copy
+          })
+      }
+    },
+    beforeMount () {
+      var pageURL =  window.location.href;
+      var idUrl = pageURL.substr(pageURL.lastIndexOf('/') + 1);
+      axios.get(this.apiURL)
+        .then((response) => {
+          const q = []
+          response.data.forEach(function(element) {
+            if (element.surveyId == idUrl) {
+              q.push(element);
+            }
+          });
+          this.respondentanswers = q
+        })
+    }
+  })
+
+  </script>
+</body>
+</html>
+
