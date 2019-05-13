@@ -172,8 +172,8 @@ app.get('/api/respondents', (req, res) => {
   });
   
 app.post('/api/respondents', (req, res) => {
-	const { name, content, surveyId } = req.body
-	return db.RespondentAnswer.create({ name, content, surveyId })
+	const { name, content, surveyId, userId } = req.body
+	return db.RespondentAnswer.create({ name, content, surveyId, userId })
 	  .then((respondentAnswer) => res.send(respondentAnswer))
 	  .catch((err) => {
 		console.log('***There was an error creating a answer', JSON.stringify(err))
@@ -192,6 +192,71 @@ app.delete('/api/respondents/:id', (req, res) => {
 	  })
   });
 
+  // user 
+
+  app.get('/api/users', (req, res) => {
+	return db.User.findAll()
+	  .then((users) => res.send(users))
+	  .catch((err) => {
+		console.log('There was an error querying users', JSON.stringify(err))
+		return res.send(err)
+	  });
+  });
+  
+  app.post('/api/users', (req, res) => {
+	const { name,email,password } = req.body
+	return db.User.create({ name,email,password })
+	  .then((user) => res.send(user))
+	  .catch((err) => {
+		console.log('***There was an error creating a user', JSON.stringify(err))
+		return res.status(400).send(err)
+	  })
+  });
+  
+  app.post('/api/login', (req, res) => {
+	const { email, password } = req.body
+	return db.User.findOne({
+		where: {email: email}
+	  }).then(users => {
+		// project will be the first entry of the Projects table with the title 'aProject' || null
+		// project.get('title') will contain the name of the project
+		// const id = req.body
+		if (users.password == password) {
+			return res.send({ status: true, message: 'Все отлично', userId: users.id})
+		} else {
+			return res.send({ status: false, message: 'Пароль не правильный'})
+		}
+	  }).catch((err) => {
+		console.log('***Cannot find user', JSON.stringify(err))
+		return res.send({ status: false, message: 'Пользователь не найден'})
+	  })
+  });
+
+  app.delete('/api/users/:id', (req, res) => {
+	const id = parseInt(req.params.id)
+	return db.User.findById(id)
+	  .then((user) => user.destroy({ force: true }))
+	  .then(() => res.send({ id }))
+	  .catch((err) => {
+		console.log('***Error deleting user', JSON.stringify(err))
+		res.status(400).send(err)
+	  })
+  });
+  
+  app.put('/api/users/:id', (req, res) => {
+	const id = parseInt(req.params.id)
+	return db.User.findById(id)
+	.then((user) => {
+	  const { name,email,password } = req.body
+	  return user.update({ name,email,password })
+		.then(() => res.send(user))
+		.catch((err) => {
+		  console.log('***Error updating user', JSON.stringify(err))
+		  res.status(400).send(err)
+		})
+	})
+  });
+
 //Routing
 
 app.route('/survey/:id')
@@ -207,8 +272,12 @@ app.route('/question/:id')
   .get(function(req, res) {
     res.sendFile(__dirname+'/static/answers.html');
   });
+  app.route('/users/')
+  .get(function(req, res) {
+    res.sendFile(__dirname+'/static/users.html');
+  });
 
-https.createServer(options, app).listen(9002, () => {
+https.createServer(options, app).listen(9008, () => {
     console.log('Server start');
 });
 

@@ -22,8 +22,8 @@
   <div id="app" class="container">
     <section class="section section-container" style="padding-top: 24px; padding-bottom: 5px;">
         <h2 class="title">Ответы респондентов</h2>
-        <respondentanswer v-for="respondentanswer in respondentanswers"
-            :key="respondentanswer.name"
+        <respondentanswer v-for="(respondentanswer,id) in respondentanswers"
+            :key="id"
             :respondentanswer="respondentanswer"
             @save-respondentanswer="onAddOrUpdateRespondentAnswer" 
             @delete-respondentanswer="deleteRespondentAnswer" />
@@ -42,6 +42,7 @@
         id: this.respondentanswer ? this.respondentanswer.id : null,
         name: this.respondentanswer ? this.respondentanswer.name : '',
         content: this.respondentanswer ? this.respondentanswer.content : '',
+        userId: this.respondentanswer ? this.respondentanswer.userId : '',
 		surveyId: '',
       }
     },
@@ -52,22 +53,22 @@
     },
     methods: {
       save() {
-        this.$emit('save-respondentanswer', { id: this.id, name: this.name, content: this.content, surveyId: this.surveyId})
+        this.$emit('save-respondentanswer', { id: this.id, name: this.name, content: this.content, surveyId: this.surveyId, userId: this.userId})
         if (!this.id) {
           this.name = '',
-          this.content = ''
+		  this.content = '',
+		  this.userId = ''
         }
       }
     },
     template: `
-      <form class="form" @submit.prevent="save">
+      <div>
         <h3 class='subtitle'>{{ title }}</h3>
         <div class="field">
-            <div class="control">
-              {{this.content}}
+            <div class="content is-small" v-html="this.content">
             </div> 
         </div>
-      </form>
+      </div>
     `
   }
 

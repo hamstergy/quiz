@@ -1,0 +1,205 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Users</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17-beta.0/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    .section-container {
+      max-width: 800px;
+      margin-right: auto;
+      margin-left: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <section class="section section-container" style="padding-top: 24px; padding-bottom: 5px;">
+        <h2 class="title">Пользователи</h2>
+        <user v-for="user in users"
+            :key="user.name"
+            :user="user"
+			@save-user="onAddOrUpdateUser"
+			@delete-user="deleteUser" />
+    </section>
+    <section class="section section-container" style="padding-bottom: 10px;">
+      <div class="box">
+        <add-update-user title="Добавить пользователя" @save-user="onAddOrUpdateUser" />
+	  </div>
+	</section>
+	
+  </div>
+  <script>
+  const AddUpdateUser = {
+    props: ['user', 'title'],
+    data () {
+      return {
+        id: this.user ? this.user.id : null,
+        name: this.user ? this.user.name : '',
+        email: this.user ? this.user.email : '',
+		password: this.user ? this.user.password : ''
+      }
+    },
+    methods: {
+      save() {
+        this.$emit('save-user', { id: this.id, name: this.name, email: this.email, password: this.password })
+        if (!this.id) {
+          this.name = '',
+          this.email = '',
+          this.password = ''
+        }
+	  },
+	  loginTest () {
+		return axios.post('/api/login', {
+			email: 'hamstergy@yahoo.com',
+			password: '123456'
+		})
+          .then((response) => {
+            console.log(response.data)
+          })
+	  }
+    },
+    template: `
+      <form class="form" @submit.prevent="save">
+        <h3 class='subtitle'>{{ title }}</h3>
+        <div class="field">
+            <label>Имя пользователя</label>
+            <div class="control">
+              <input class="input" type="text" v-model="name">
+            </div> 
+		</div>
+		<div class="field">
+            <label>E-mail</label>
+            <div class="control">
+              <input class="input" type="text" v-model="email">
+            </div> 
+		</div>
+		<div class="field">
+            <label>Пароль</label>
+            <div class="control">
+              <input class="input" type="password" v-model="password">
+            </div> 
+        </div>
+        <div class="field">
+            <div class="control">
+              <button class="button is-success">Сохранить</button>
+            </div> 
+		</div>
+		<div @click="loginTest" style="width:20px; height:40px; color:red;">Login</div>
+	  </form>
+    `
+  }
+
+  const User = {
+    props: ['user'],
+    components: { 'add-update-user': AddUpdateUser },
+    data () {
+      return {
+        showDetail: false
+      }
+    },
+    methods: {
+      onAddOrUpdateUser(user) {
+        this.$emit('save-user', user)
+      },
+      deleteUser (user) {
+        this.$emit('delete-user', user)
+      },
+      goTo (id) {
+        window.location.href = '/user/' + id;
+	  },
+	  goToRespondent (id) {
+        window.location.href = '/respondent/' + id;
+	  },
+    },
+    template: `
+      <div class="card">
+        <header class="card-header">
+          <p class="card-header-title">
+            {{ user.name }}
+		  </p>
+		  <a class="card-header-icon" @click="goToRespondent(user.id)">
+            <span class="icon">
+              <i class="fa fa-list"></i>
+            </span>
+          </a>
+          <a class="card-header-icon" @click="showDetail = !showDetail">
+            <span class="icon">
+              <i class="fa fa-edit"></i>
+            </span>
+          </a>
+          <a class="card-header-icon" @click.stop="deleteUser(user)">
+            <span class="icon">
+              <i class="fa fa-trash"></i>
+            </span>
+          </a>
+        </header>
+        <div v-show="showDetail" class="card-content">
+            <add-update-user title="Details" :user="user" @save-user="onAddOrUpdateUser" />
+        </div>
+      </div>
+    `
+  }
+
+
+  new Vue({
+    el: '#app',
+    components: { user: User, 'add-update-user': AddUpdateUser },
+    data: {
+	  users: [],
+      apiURL: '/api/users',
+    },
+    methods: {
+      onAddOrUpdateUser (user) {
+        if (user.id) {
+          this.updateUser(user)
+        } else {
+          this.addUser(user)
+        }
+	  },
+      addUser (user) {
+        return axios.post(this.apiURL, user)
+          .then((response) => {
+            const copy = this.users.slice()
+            copy.push(response.data)
+            this.users = copy
+          })
+      },
+      updateUser (user) {
+        return axios.put(`${this.apiURL}/${user.id}`, user)
+          .then((response) => {
+            const copy = this.users.slice()
+            const idx = copy.findIndex((c) => c.id === response.data.id)
+            copy[idx] = response.data
+            this.users = copy
+          })
+      },
+      deleteUser (user) {
+        console.log('deleting', user)
+        return axios.delete(`${this.apiURL}/${user.id}`)
+          .then((response) => {
+            let copy = this.users.slice()
+            const idx = copy.findIndex((c) => c.id === response.data.id)
+            copy.splice(idx, 1)
+            this.users = copy
+          })
+      }
+    },
+    beforeMount () {
+      axios.get(this.apiURL)
+        .then((response) => {
+          this.users = response.data
+        })
+    }
+  })
+
+  </script>
+</body>
+</html>
+

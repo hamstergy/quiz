@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
   RespondentAnswer.associate = function(models) {
 	// associations can be defined here
 	RespondentAnswer.belongsTo(models.Survey, {foreignKey: 'surveyId', foreignKeyConstraint: true, onDelete: 'cascade', targetKey: 'id'});
+	RespondentAnswer.belongsTo(models.User, {foreignKey: 'userId', foreignKeyConstraint: true, onDelete: 'cascade', targetKey: 'id'});
   };
   return RespondentAnswer;
 };
