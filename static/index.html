@@ -74,7 +74,8 @@
     components: { 'add-update-survey': AddUpdateSurvey },
     data () {
       return {
-        showDetail: false
+        showDetail: false,
+        removeModal: false
       }
     },
     methods: {
@@ -82,7 +83,8 @@
         this.$emit('save-survey', survey)
       },
       deleteSurvey (survey) {
-        this.$emit('delete-survey', survey)
+        this.$emit('delete-survey', survey);
+        this.removeModal = false
       },
       goTo (id) {
         window.location.href = '/survey/' + id;
@@ -107,11 +109,23 @@
               <i class="fa fa-edit"></i>
             </span>
           </a>
-          <a class="card-header-icon" @click.stop="deleteSurvey(survey)">
+          <a class="card-header-icon" @click="removeModal = true">
             <span class="icon">
               <i class="fa fa-trash"></i>
             </span>
           </a>
+          <div class="modal is-active" v-show="removeModal">
+          <div class="modal-background"></div>
+          <div class="modal-card">
+            <section class="modal-card-body">
+              Вы действительно хотите удалить опрос?
+            </section>
+            <footer class="modal-card-foot">
+              <button class="button is-success" @click="deleteSurvey(survey)">Удалить</button>
+              <button class="button" @click="removeModal = false">Отмена</button>
+            </footer>
+          </div>
+          </div>
         </header>
         <div v-show="showDetail" class="card-content">
             <add-update-survey title="Details" :survey="survey" @save-survey="onAddOrUpdateSurvey" />

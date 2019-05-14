@@ -77,7 +77,8 @@
     components: { 'add-update-respondentanswer': AddUpdateRespondentAnswer },
     data () {
       return {
-        showDetail: false
+        showDetail: false,
+        removeModal: false
       }
     },
     methods: {
@@ -85,7 +86,8 @@
         this.$emit('save-respondentanswer', respondentanswer)
       },
       deleteRespondentAnswer (respondentanswer) {
-        this.$emit('delete-respondentanswer', respondentanswer)
+        this.$emit('delete-respondentanswer', respondentanswer);
+        this.removeModal = false
       },
       goTo (id) {
 		if (type == 9 || type == 6){
@@ -104,11 +106,23 @@
               <i class="fa fa-eye"></i>
             </span>
           </a>
-          <a class="card-header-icon" @click.stop="deleteRespondentAnswer(respondentanswer)">
+          <a class="card-header-icon" @click="removeModal = true">
             <span class="icon">
               <i class="fa fa-trash"></i>
             </span>
           </a>
+          <div class="modal is-active" v-show="removeModal">
+          <div class="modal-background"></div>
+          <div class="modal-card">
+            <section class="modal-card-body">
+              Вы действительно хотите удалить ответ пользователя?
+            </section>
+            <footer class="modal-card-foot">
+              <button class="button is-success" @click="deleteRespondentAnswer(respondentanswer)">Удалить</button>
+              <button class="button" @click="removeModal = false">Отмена</button>
+            </footer>
+          </div>
+        </div>
         </header>
         <div v-show="showDetail" class="card-content">
             <add-update-respondentanswer title="Ответы респондента" :respondentanswer="respondentanswer" @save-respondentanswer="onAddOrUpdateRespondentAnswer" />

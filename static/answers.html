@@ -83,7 +83,8 @@
     components: { 'add-update-answer': AddUpdateAnswer },
     data () {
       return {
-        showDetail: false
+        showDetail: false,
+        removeModal: false
       }
     },
     methods: {
@@ -91,7 +92,8 @@
         this.$emit('save-answer', answer)
       },
       deleteAnswer (answer) {
-        this.$emit('delete-answer', answer)
+        this.$emit('delete-answer', answer);
+        this.removeModal = false
       }
     },
     template: `
@@ -105,11 +107,23 @@
               <i class="fa fa-edit"></i>
             </span>
           </a>
-          <a class="card-header-icon" @click.stop="deleteAnswer(answer)">
+          <a class="card-header-icon" @click.stop="removeModal = true">
             <span class="icon">
               <i class="fa fa-trash"></i>
             </span>
           </a>
+          <div class="modal is-active" v-show="removeModal">
+          <div class="modal-background"></div>
+          <div class="modal-card">
+            <section class="modal-card-body">
+              Вы действительно хотите удалить вариант ответа?
+            </section>
+            <footer class="modal-card-foot">
+              <button class="button is-success" @click="deleteAnswer(answer)">Удалить</button>
+              <button class="button" @click="removeModal = false">Отмена</button>
+            </footer>
+          </div>
+          </div>
         </header>
         <div v-show="showDetail" class="card-content">
             <add-update-answer title="Details" :answer="answer" @save-answer="onAddOrUpdateAnswer" />

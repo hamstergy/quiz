@@ -195,7 +195,7 @@ app.delete('/api/respondents/:id', (req, res) => {
   // user 
 
   app.get('/api/users', (req, res) => {
-	return db.User.findAll()
+	return db.User.findAll({ include: [{ all: true, nested: true }]})
 	  .then((users) => res.send(users))
 	  .catch((err) => {
 		console.log('There was an error querying users', JSON.stringify(err))
