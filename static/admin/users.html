@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17-beta.0/vue.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
   <style>
     .section-container {
       max-width: 800px;
@@ -54,16 +54,7 @@
           this.email = '',
           this.password = ''
         }
-	  },
-	  loginTest () {
-		return axios.post('/api/login', {
-			email: 'hamstergy@yahoo.com',
-			password: '123456'
-		})
-          .then((response) => {
-            console.log(response.data)
-          })
-	  }
+	    }
     },
     template: `
       <form class="form" @submit.prevent="save">
@@ -113,17 +104,17 @@
         this.removeModal = false;
       },
       goTo (id) {
-        window.location.href = '/user/' + id;
+        window.location.href = '/adminq/user/' + id;
 	  },
 	  goToRespondent (id) {
-        window.location.href = '/respondent/' + id;
+        window.location.href = '/adminq/respondent/' + id;
 	  },
     },
     template: `
       <div class="card">
         <header class="card-header">
           <p class="card-header-title">
-            {{ user.name }} ({{user.RespondentAnswers.length}})
+            {{ user.name }} <span v-if="user.RespondentAnswers && user.RespondentAnswers.length > 0">({{user.RespondentAnswers.length}})</span>
 		  </p>
 		  <a class="card-header-icon" @click="goToRespondent(user.id)">
             <span class="icon">

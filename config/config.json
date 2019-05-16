@@ -1,23 +1,14 @@
 {
   "development": {
-    "username": "root",
-    "password": "fdsWSkljnf12dc",
-    "database": "quiz",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "sqlite",
+    "storage": "./database.db"
   },
   "test": {
-    "username": "root",
-    "password": "fdsWSkljnf12dc",
-    "database": "quiz",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "sqlite",
+    "storage": "./database.db"
   },
   "production": {
-    "username": "root",
-    "password": "fdsWSkljnf12dc",
-    "database": "quiz",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "sqlite",
+    "storage": "./database.db"
   }
 }

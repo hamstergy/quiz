@@ -1,0 +1,225 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Questions</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17-beta.0/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+  <style>
+    .section-container {
+      max-width: 800px;
+      margin-right: auto;
+      margin-left: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <section class="section section-container" style="padding-top: 24px; padding-bottom: 5px;">
+        <h2 class="title">Вопросы</h2>
+        <question v-for="question in questions"
+            :key="question.name"
+            :question="question"
+            @save-question="onAddOrUpdateQuestion" 
+            @delete-question="deleteQuestion" />
+    </section>
+    <section class="section section-container" style="padding-bottom: 10px;">
+      <div class="box">
+        <add-update-question title="Добавить вопрос" @save-question="onAddOrUpdateQuestion" />
+      </div>
+    </section>
+  </div>
+  <script>
+  const AddUpdateQuestion = {
+    props: ['question', 'title'],
+    data () {
+      return {
+        id: this.question ? this.question.id : null,
+        name: this.question ? this.question.name : '',
+        type: this.question ? this.question.type : '',
+		surveyId: '',
+		typeOptions: [
+			{ text: 'Выберите тип вопроса', value: '' },
+			{ text: 'Текст (однострочный)', value: 0 },
+			{ text: 'Текст (многострочный)', value: 1 },
+			{ text: 'Email адрес', value: 2 },
+			{ text: 'ИНН (12 чисел)', value: 3 },
+			{ text: 'Целое число', value: 4 },
+			{ text: 'Вещественное число', value: 5 },
+			{ text: 'Список ответов (один вариант ответа)', value: 6 },
+			{ text: 'Дата', value: 7 },
+			{ text: 'Телефон', value: 8 },
+			{ text: 'Список ответов (много вариантов ответа)', value: 9 }
+		]
+      }
+    },
+    created: function(){
+      var pageURL =  window.location.href;
+      var lastURLSegment = pageURL.substr(pageURL.lastIndexOf('/') + 1);
+      this.surveyId = lastURLSegment;
+    },
+    methods: {
+      save() {
+        this.$emit('save-question', { id: this.id, name: this.name, type: this.type, surveyId: this.surveyId})
+        if (!this.id) {
+          this.name = '',
+          this.type = ''
+          // this.surveyId = ''
+        }
+      }
+    },
+    template: `
+      <form class="form" @submit.prevent="save">
+        <h3 class='subtitle'>{{ title }}</h3>
+        <div class="field">
+            <label>Название опроса</label>
+            <div class="control">
+              <input class="input" type="text" v-model="name">
+            </div> 
+        </div>
+        <div class="field">
+            <div class="select is-fullwidth">
+				<select v-model="type">
+					<option v-for="option in typeOptions" v-bind:value="option.value">
+						{{ option.text }}
+					</option>
+				</select>
+            </div> 
+        </div>
+        <div class="field">
+            <div class="control">
+              <button class="button is-success">Сохранить</button>
+            </div> 
+        </div>
+      </form>
+    `
+  }
+
+  const Question = {
+    props: ['question'],
+    components: { 'add-update-question': AddUpdateQuestion },
+    data () {
+      return {
+        showDetail: false,
+        removeModal: false
+      }
+    },
+    methods: {
+      onAddOrUpdateQuestion(question) {
+        this.$emit('save-question', question)
+      },
+      deleteQuestion (question) {
+        this.$emit('delete-question', question);
+        this.removeModal = false
+      },
+      goTo (id,type) {
+		if (type == 9 || type == 6){
+			window.location.href = '/adminq/question/' + id;
+		}
+      }
+    },
+    template: `
+      <div class="card">
+        <header class="card-header">
+          <p class="card-header-title" @click="goTo(question.id, question.type)">
+            {{ question.name }}
+          </p>
+          <a class="card-header-icon" @click="showDetail = !showDetail">
+            <span class="icon">
+              <i class="fa fa-edit"></i>
+            </span>
+          </a>
+          <a class="card-header-icon" @click="removeModal = true">
+            <span class="icon">
+              <i class="fa fa-trash"></i>
+            </span>
+          </a>
+          <div class="modal is-active" v-show="removeModal">
+          <div class="modal-background"></div>
+          <div class="modal-card">
+            <section class="modal-card-body">
+              Вы действительно хотите удалить вопрос?
+            </section>
+            <footer class="modal-card-foot">
+              <button class="button is-success" @click="deleteQuestion(question)">Удалить</button>
+              <button class="button" @click="removeModal = false">Отмена</button>
+            </footer>
+          </div>
+          </div>
+        </header>
+        <div v-show="showDetail" class="card-content">
+            <add-update-question title="Details" :question="question" @save-question="onAddOrUpdateQuestion" />
+        </div>
+      </div>
+    `
+  }
+
+
+  new Vue({
+    el: '#app',
+    components: { question: Question, 'add-update-question': AddUpdateQuestion },
+    data: {
+      questions: [],
+      apiURL: '/api/questions'
+    },
+    methods: {
+      onAddOrUpdateQuestion (question) {
+        if (question.id) {
+          this.updateQuestion(question)
+        } else {
+          this.addQuestion(question)
+        }
+      },
+      addQuestion (question) {
+        return axios.post(this.apiURL, question)
+          .then((response) => {
+            const copy = this.questions.slice()
+            copy.push(response.data)
+            this.questions = copy
+          })
+      },
+      updateQuestion (question) {
+        return axios.put(`${this.apiURL}/${question.id}`, question)
+          .then((response) => {
+            const copy = this.questions.slice()
+            const idx = copy.findIndex((c) => c.id === response.data.id)
+            copy[idx] = response.data
+            this.questions = copy
+          })
+      },
+      deleteQuestion (question) {
+        console.log('deleting', question)
+        return axios.delete(`${this.apiURL}/${question.id}`)
+          .then((response) => {
+            let copy = this.questions.slice()
+            const idx = copy.findIndex((c) => c.id === response.data.id)
+            copy.splice(idx, 1)
+            this.questions = copy
+          })
+      }
+    },
+    beforeMount () {
+      var pageURL =  window.location.href;
+      var idUrl = pageURL.substr(pageURL.lastIndexOf('/') + 1);
+      axios.get(this.apiURL)
+        .then((response) => {
+          const q = []
+          response.data.forEach(function(element) {
+            if (element.surveyId == idUrl) {
+              q.push(element);
+            }
+          });
+          this.questions = q
+        })
+    }
+  })
+
+  </script>
+</body>
+</html>
+

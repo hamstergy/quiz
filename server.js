@@ -48,7 +48,7 @@ app.post('/api/surveys', (req, res) => {
 
 app.delete('/api/surveys/:id', (req, res) => {
   const id = parseInt(req.params.id)
-  return db.Survey.findById(id)
+  return db.Survey.findByPk(id)
     .then((survey) => survey.destroy({ force: true }))
     .then(() => res.send({ id }))
     .catch((err) => {
@@ -59,7 +59,7 @@ app.delete('/api/surveys/:id', (req, res) => {
 
 app.put('/api/surveys/:id', (req, res) => {
   const id = parseInt(req.params.id)
-  return db.Survey.findById(id)
+  return db.Survey.findByPk(id)
   .then((survey) => {
     const { name } = req.body
     return survey.update({ name })
@@ -72,7 +72,10 @@ app.put('/api/surveys/:id', (req, res) => {
 });
 
 app.get('/api/questions', (req, res) => {
-  return db.Question.findAll()
+  return db.Question.findAll({ include: [{ 
+    model: db.Answer,
+   }]
+  })
     .then((questions) => res.send(questions))
     .catch((err) => {
       console.log('There was an error querying questions', JSON.stringify(err))
@@ -92,7 +95,7 @@ app.post('/api/questions', (req, res) => {
 
 app.delete('/api/questions/:id', (req, res) => {
   const id = parseInt(req.params.id)
-  return db.Question.findById(id)
+  return db.Question.findByPk(id)
     .then((question) => question.destroy({ force: true }))
     .then(() => res.send({ id }))
     .catch((err) => {
@@ -103,7 +106,7 @@ app.delete('/api/questions/:id', (req, res) => {
 
 app.put('/api/questions/:id', (req, res) => {
   const id = parseInt(req.params.id)
-  return db.Question.findById(id)
+  return db.Question.findByPk(id)
   .then((question) => {
     const { name,type,surveyId } = req.body
     return question.update({ name,type,surveyId })
@@ -137,7 +140,7 @@ app.post('/api/answers', (req, res) => {
 
 app.delete('/api/answers/:id', (req, res) => {
   const id = parseInt(req.params.id)
-  return db.Answer.findById(id)
+  return db.Answer.findByPk(id)
     .then((answer) => answer.destroy({ force: true }))
     .then(() => res.send({ id }))
     .catch((err) => {
@@ -148,7 +151,7 @@ app.delete('/api/answers/:id', (req, res) => {
 
 app.put('/api/answers/:id', (req, res) => {
   const id = parseInt(req.params.id)
-  return db.Answer.findById(id)
+  return db.Answer.findByPk(id)
   .then((answer) => {
     const { name, checked, questionId } = req.body
     return answer.update({ name, checked, questionId })
@@ -183,7 +186,7 @@ app.post('/api/respondents', (req, res) => {
 
 app.delete('/api/respondents/:id', (req, res) => {
 	const id = parseInt(req.params.id)
-	return db.RespondentAnswer.findById(id)
+	return db.RespondentAnswer.findByPk(id)
 	  .then((respondentAnswer) => respondentAnswer.destroy({ force: true }))
 	  .then(() => res.send({ id }))
 	  .catch((err) => {
@@ -234,7 +237,7 @@ app.delete('/api/respondents/:id', (req, res) => {
 
   app.delete('/api/users/:id', (req, res) => {
 	const id = parseInt(req.params.id)
-	return db.User.findById(id)
+	return db.User.findByPk(id)
 	  .then((user) => user.destroy({ force: true }))
 	  .then(() => res.send({ id }))
 	  .catch((err) => {
@@ -245,7 +248,7 @@ app.delete('/api/respondents/:id', (req, res) => {
   
   app.put('/api/users/:id', (req, res) => {
 	const id = parseInt(req.params.id)
-	return db.User.findById(id)
+	return db.User.findByPk(id)
 	.then((user) => {
 	  const { name,email,password } = req.body
 	  return user.update({ name,email,password })
@@ -258,23 +261,34 @@ app.delete('/api/respondents/:id', (req, res) => {
   });
 
 //Routing
-
+app.route('/surveys')
+  .get(function(req, res) {
+    res.sendFile(__dirname+'/static/survey.html');
+});
 app.route('/survey/:id')
   .get(function(req, res) {
     res.sendFile(__dirname+'/static/questions.html');
   });
-app.route('/respondent/:id')
+app.route('/adminq')
   .get(function(req, res) {
-    res.sendFile(__dirname+'/static/respondent.html');
+    res.sendFile(__dirname+'/static/admin/survey.html');
+});
+app.route('/adminq/survey/:id')
+  .get(function(req, res) {
+    res.sendFile(__dirname+'/static/admin/questions.html');
+  });
+app.route('/adminq/respondent/:id')
+  .get(function(req, res) {
+    res.sendFile(__dirname+'/static/admin/respondent.html');
 });
 
-app.route('/question/:id')
+app.route('/adminq/question/:id')
   .get(function(req, res) {
-    res.sendFile(__dirname+'/static/answers.html');
+    res.sendFile(__dirname+'/static/admin/answers.html');
   });
-  app.route('/users/')
+  app.route('/adminq/users/')
   .get(function(req, res) {
-    res.sendFile(__dirname+'/static/users.html');
+    res.sendFile(__dirname+'/static/admin/users.html');
   });
 
 https.createServer(options, app).listen(9008, () => {

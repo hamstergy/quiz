@@ -1,0 +1,80 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Surveys</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17-beta.0/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+  <style>
+    .section-container {
+      max-width: 800px;
+      margin-right: auto;
+      margin-left: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <section class="section section-container" style="padding-top: 24px; padding-bottom: 5px;">
+        <h2 class="title">Опросы</h2>
+        <survey v-for="survey in surveys"
+            :key="survey.name"
+            :survey="survey"/>
+    </section>
+  </div>
+  <script>
+
+
+  const Survey = {
+    props: ['survey'],
+    data () {
+      return {
+      }
+    },
+    methods: {
+      goTo (id) {
+        window.location.href = '/survey/' + id;
+	  },
+	  goToRespondent (id) {
+        window.location.href = '/respondent/' + id;
+	  },
+    },
+    template: `
+      <div class="card">
+        <header class="card-header">
+          <p class="card-header-title" @click="goTo(survey.id)">
+            {{ survey.name }}
+		      </p>
+        </header>
+      </div>
+    `
+  }
+
+
+  new Vue({
+    el: '#app',
+    components: { survey: Survey},
+    data: {
+      surveys: [],
+      apiURL: '/api/surveys',
+    },
+    methods: {
+
+    },
+    beforeMount () {
+      axios.get(this.apiURL)
+        .then((response) => {
+          this.surveys = response.data
+        })
+    }
+  })
+
+  </script>
+</body>
+</html>
+

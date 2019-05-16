@@ -1,0 +1,192 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Surveys</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17-beta.0/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+  <style>
+    .section-container {
+      max-width: 800px;
+      margin-right: auto;
+      margin-left: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <section class="section section-container" style="padding-top: 24px; padding-bottom: 5px;">
+        <h2 class="title">Опросы</h2>
+        <survey v-for="survey in surveys"
+            :key="survey.name"
+            :survey="survey"
+            @save-survey="onAddOrUpdateSurvey" 
+            @delete-survey="deleteSurvey" />
+    </section>
+    <section class="section section-container" style="padding-bottom: 10px;">
+      <div class="box">
+        <add-update-survey title="Добавить опрос" @save-survey="onAddOrUpdateSurvey" />
+      </div>
+    </section>
+  </div>
+  <script>
+  const AddUpdateSurvey = {
+    props: ['survey', 'title'],
+    data () {
+      return {
+        id: this.survey ? this.survey.id : null,
+        name: this.survey ? this.survey.name : ''
+      }
+    },
+    methods: {
+      save() {
+        this.$emit('save-survey', { id: this.id, name: this.name })
+        if (!this.id) {
+          this.name = ''
+        }
+      }
+    },
+    template: `
+      <form class="form" @submit.prevent="save">
+        <h3 class='subtitle'>{{ title }}</h3>
+        <div class="field">
+            <label>Название опроса</label>
+            <div class="control">
+              <input class="input" type="text" v-model="name">
+            </div> 
+        </div>
+        <div class="field">
+            <div class="control">
+              <button class="button is-success">Сохранить</button>
+            </div> 
+        </div>
+      </form>
+    `
+  }
+
+  const Survey = {
+    props: ['survey'],
+    components: { 'add-update-survey': AddUpdateSurvey },
+    data () {
+      return {
+        showDetail: false,
+        removeModal: false
+      }
+    },
+    methods: {
+      onAddOrUpdateSurvey(survey) {
+        this.$emit('save-survey', survey)
+      },
+      deleteSurvey (survey) {
+        this.$emit('delete-survey', survey);
+        this.removeModal = false
+      },
+      goTo (id) {
+        window.location.href = '/adminq/survey/' + id;
+	  },
+	  goToRespondent (id) {
+        window.location.href = '/adminq/respondent/' + id;
+	  },
+    },
+    template: `
+      <div class="card">
+        <header class="card-header">
+          <p class="card-header-title" @click="goTo(survey.id)">
+            {{ survey.name }}
+		  </p>
+		  <a class="card-header-icon" @click="goToRespondent(survey.id)">
+            <span class="icon">
+              <i class="fa fa-list"></i>
+            </span>
+          </a>
+          <a class="card-header-icon" @click="showDetail = !showDetail">
+            <span class="icon">
+              <i class="fa fa-edit"></i>
+            </span>
+          </a>
+          <a class="card-header-icon" @click="removeModal = true">
+            <span class="icon">
+              <i class="fa fa-trash"></i>
+            </span>
+          </a>
+          <div class="modal is-active" v-show="removeModal">
+          <div class="modal-background"></div>
+          <div class="modal-card">
+            <section class="modal-card-body">
+              Вы действительно хотите удалить опрос?
+            </section>
+            <footer class="modal-card-foot">
+              <button class="button is-success" @click="deleteSurvey(survey)">Удалить</button>
+              <button class="button" @click="removeModal = false">Отмена</button>
+            </footer>
+          </div>
+          </div>
+        </header>
+        <div v-show="showDetail" class="card-content">
+            <add-update-survey title="Details" :survey="survey" @save-survey="onAddOrUpdateSurvey" />
+        </div>
+      </div>
+    `
+  }
+
+
+  new Vue({
+    el: '#app',
+    components: { survey: Survey, 'add-update-survey': AddUpdateSurvey },
+    data: {
+      surveys: [],
+      apiURL: '/api/surveys',
+    },
+    methods: {
+      onAddOrUpdateSurvey (survey) {
+        if (survey.id) {
+          this.updateSurvey(survey)
+        } else {
+          this.addSurvey(survey)
+        }
+      },
+      addSurvey (survey) {
+        return axios.post(this.apiURL, survey)
+          .then((response) => {
+            const copy = this.surveys.slice()
+            copy.push(response.data)
+            this.surveys = copy
+          })
+      },
+      updateSurvey (survey) {
+        return axios.put(`${this.apiURL}/${survey.id}`, survey)
+          .then((response) => {
+            const copy = this.surveys.slice()
+            const idx = copy.findIndex((c) => c.id === response.data.id)
+            copy[idx] = response.data
+            this.surveys = copy
+          })
+      },
+      deleteSurvey (survey) {
+        console.log('deleting', survey)
+        return axios.delete(`${this.apiURL}/${survey.id}`)
+          .then((response) => {
+            let copy = this.surveys.slice()
+            const idx = copy.findIndex((c) => c.id === response.data.id)
+            copy.splice(idx, 1)
+            this.surveys = copy
+          })
+      }
+    },
+    beforeMount () {
+      axios.get(this.apiURL)
+        .then((response) => {
+          this.surveys = response.data
+        })
+    }
+  })
+
+  </script>
+</body>
+</html>
+
