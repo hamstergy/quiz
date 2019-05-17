@@ -100,7 +100,7 @@
       addSurvey (survey) {
         return axios.post('/api/respondents', survey)
           .then((response) => {
-            window.location.href = '/surveys/' + id;
+            window.location.href = '/surveys/';
           })
       },
       validate() {
