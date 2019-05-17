@@ -23,7 +23,7 @@
     <section class="section section-container" style="padding-top: 24px; padding-bottom: 5px;">
         <h2 class="title">Вопросы</h2>
         <form class="form" @submit.prevent="validate">
-          <template v-for="question in questions">
+          <template v-for="(question,index) in questions">
             <div class="field" v-if="question.type != 9 && question.type != 6">
               <label class="label">{{ question.name }}</label>
                 <div class="control">
@@ -33,9 +33,9 @@
             <div class="field" v-if="question.type == 6">
               <label class="label">{{ question.name }}</label>
                 <div class="control">
-                  <div class="field" v-for="ans in question.Answers">
+                  <div class="field" v-for="(ans,key) in question.Answers">
                     <label class="radio" >
-                      <input type="radio" name="answer" :value="ans.name" v-model="oneChoose">
+                      <input type="radio" name="answer" :value="ans.name" v-model="oneChoose[index]">
                         {{ans.name}}
                       </label>
                   </div>
@@ -68,7 +68,7 @@
     el: '#app',
     data: {
       questions: [],
-      oneChoose: '',
+      oneChoose: [],
       respondentanswer: {
         name: '',
         content: '',
@@ -120,7 +120,7 @@
               }
           }
           if (this.questions[value].type == 6) {
-            this.respondentanswer.content += "<p>" + this.oneChoose + "</p>";
+            this.respondentanswer.content += "<p>" + this.oneChoose[value] + "</p>";
           }
           else if(this.questions[value].type != 9 && this.questions[value].type != 6) {
               answer = this.questions[value].Answers;

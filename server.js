@@ -207,8 +207,8 @@ app.delete('/api/respondents/:id', (req, res) => {
   });
   
   app.post('/api/users', (req, res) => {
-	const { name,email,password } = req.body
-	return db.User.create({ name,email,password })
+	const { name,email,password,city,shop } = req.body
+	return db.User.create({ name,email,password,city,shop })
 	  .then((user) => res.send(user))
 	  .catch((err) => {
 		console.log('***There was an error creating a user', JSON.stringify(err))
@@ -250,8 +250,8 @@ app.delete('/api/respondents/:id', (req, res) => {
 	const id = parseInt(req.params.id)
 	return db.User.findByPk(id)
 	.then((user) => {
-	  const { name,email,password } = req.body
-	  return user.update({ name,email,password })
+	  const { name,email,password,city,shop } = req.body
+	  return user.update({ name,email,password,city,shop })
 		.then(() => res.send(user))
 		.catch((err) => {
 		  console.log('***Error updating user', JSON.stringify(err))
