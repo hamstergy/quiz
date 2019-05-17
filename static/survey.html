@@ -67,6 +67,11 @@
     methods: {
 
     },
+    created() {
+      if (localStorage.getItem('userId') == null) {
+            window.location.href = '/';
+        }
+    },
     beforeMount () {
       axios.get(this.apiURL)
         .then((response) => {
