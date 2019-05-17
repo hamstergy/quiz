@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Users</title>
+  <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17-beta.0/vue.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -260,13 +261,12 @@
       <div class="card">
         <header class="card-header">
           <p class="card-header-title">
-            {{ user.name }} <span v-if="user.RespondentAnswers && user.RespondentAnswers.length > 0">({{user.RespondentAnswers.length}})</span>
-		  </p>
-		  <a class="card-header-icon" @click="goToRespondent(user.id)">
-            <span class="icon">
-              <i class="fa fa-list"></i>
+            {{ user.name }} <span v-if="user.RespondentAnswers && user.RespondentAnswers.length > 0">({{user.RespondentAnswers.length}}) </span> 
+            <span class="subtitle is-6">
+               - {{user.city}}:{{user.shop}}
             </span>
-          </a>
+          </p>
+          
           <a class="card-header-icon" @click="showDetail = !showDetail">
             <span class="icon">
               <i class="fa fa-edit"></i>
