@@ -100,7 +100,7 @@
       addSurvey (survey) {
         return axios.post('/api/respondents', survey)
           .then((response) => {
-            window.location.href = '/surveys/';
+            // window.location.href = '/surveys/';
           })
       },
       sendToSputnic (value) {
@@ -126,28 +126,36 @@
         let value = 0;
         let question = '';
         let answer = '';
+        let json = {};
         for (value; value< this.questions.length; value++) {
-          question = this.questions[value].name;
-          this.respondentanswer.content += "<h3>" + question + "</h3>";
+          // question = this.questions[value].name;
+          // this.respondentanswer.content += "<h3>" + question + "</h3>";
+          
           if (this.questions[value].type == 2) {
               this.respondentanswer.name = this.questions[value].Answers;
-              sendToSputnic(this.respondentanswer.name);
+              this.sendToSputnic(this.respondentanswer.name);
           }
           if (this.questions[value].type == 9) {
+            json[this.questions[value].name] = [];
               for (let i=0; i< this.questions[value].Answers.length; i++) {
                   if (this.questions[value].Answers[i].checked == true) {
-                      this.respondentanswer.content += "<p>" + this.questions[value].Answers[i].name + "</p>";
+                    // this.respondentanswer.content += "<p>" + this.questions[value].Answers[i].name + "</p>";
+                    json[this.questions[value].name].push(this.questions[value].Answers[i].name);
                   }
               }
           }
           if (this.questions[value].type == 6) {
-            this.respondentanswer.content += "<p>" + this.oneChoose[value] + "</p>";
+            // this.respondentanswer.content += "<p>" + this.oneChoose[value] + "</p>";
+            json[this.questions[value].name] = this.oneChoose[value];
           }
           else if(this.questions[value].type != 9 && this.questions[value].type != 6) {
               answer = this.questions[value].Answers;
-              this.respondentanswer.content += "<p>" + answer + "</p>";
+              // this.respondentanswer.content += "<p>" + answer + "</p>";
+              json[this.questions[value].name] = this.questions[value].Answers;
           }
+          console.log(json);
         }
+        this.respondentanswer.content = JSON.stringify(json);
         this.addSurvey(this.respondentanswer);
       }
     },

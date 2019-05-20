@@ -47,32 +47,25 @@
       return {
         id: this.respondentanswer ? this.respondentanswer.id : null,
         name: this.respondentanswer ? this.respondentanswer.name : '',
-        content: this.respondentanswer ? this.respondentanswer.content : '',
+        content: [],
         userId: this.respondentanswer ? this.respondentanswer.userId : '',
-		surveyId: '',
+		    surveyId: '',
       }
     },
     created: function(){
       var pageURL =  window.location.href;
       var lastURLSegment = pageURL.substr(pageURL.lastIndexOf('/') + 1);
       this.surveyId = lastURLSegment;
-    },
-    methods: {
-      save() {
-        this.$emit('save-respondentanswer', { id: this.id, name: this.name, content: this.content, surveyId: this.surveyId, userId: this.userId})
-        if (!this.id) {
-          this.name = '',
-		  this.content = '',
-		  this.userId = ''
-        }
-      }
+      this.content = JSON.parse(this.respondentanswer.content);
     },
     template: `
       <div>
         <h3 class='subtitle'>{{ title }}</h3>
         <div class="field">
-            <div class="content is-small" v-html="this.content">
-            </div> 
+            <template v-for="(value,name) in content">
+              <p><b>{{name}}</b></p>
+              <p>{{value}}</p>
+            </template>
         </div>
       </div>
     `
@@ -142,7 +135,6 @@
     components: { respondentanswer: RespondentAnswer, 'add-update-respondentanswer': AddUpdateRespondentAnswer },
     data: {
       respondentanswers: [],
-      answertocsv: [],
       apiURL: '/api/respondents'
     },
     methods: {
@@ -194,7 +186,9 @@
             for (var index in arrData[0]) {
                 
                 //Now convert each value to string and comma-seprated
-                row += index + ',';
+                if (index != 'content') {
+                  row += index + ',';
+                }
             }
 
             row = row.slice(0, -1);
@@ -209,7 +203,9 @@
             
             //2nd loop will extract each column and convert it in string comma-seprated
             for (var index in arrData[i]) {
+              if (index != 'content') {
                 row += '"' + arrData[i][index] + '",';
+              }
             }
 
             row.slice(0, row.length - 1);
@@ -257,13 +253,19 @@
       axios.get(this.apiURL)
         .then((response) => {
           const q = []
+          
           response.data.forEach(function(element) {
             if (element.surveyId == idUrl) {
-              q.push(element);
+              let user = [];
+              user['userName'] = element.User.name;
+              user['Город'] = element.User.city;
+              user['Магазин'] = element.User.shop;
+              var insideContent = JSON.parse(element.content);
+              let merged = {...element, ...insideContent, ...user};
+              q.push(merged);
             }
           });
           this.respondentanswers = q
-          this.answertocsv = q
         })
     }
   })
