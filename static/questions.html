@@ -103,6 +103,25 @@
             window.location.href = '/surveys/';
           })
       },
+      sendToSputnic (value) {
+        axios.post("https://esputnik.com.ua/api/v1/event", {
+                "eventTypeKey" : "ApplicationOffline",
+                "keyValue" : value,
+                "params": [
+                    {
+                        "name": "EmailAddress",
+                        "value": value
+                    }
+                ]
+            },
+            {
+                auth: {
+                    username: 'techodom.api@esputnik.com.ua',
+                    password: 'techno123dom'
+                }
+            })
+            .then(res => console.log('Send to eSputnic!'))
+      },
       validate() {
         let value = 0;
         let question = '';
@@ -112,6 +131,7 @@
           this.respondentanswer.content += "<h3>" + question + "</h3>";
           if (this.questions[value].type == 2) {
               this.respondentanswer.name = this.questions[value].Answers;
+              sendToSputnic(this.respondentanswer.name);
           }
           if (this.questions[value].type == 9) {
               for (let i=0; i< this.questions[value].Answers.length; i++) {

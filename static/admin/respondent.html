@@ -142,6 +142,7 @@
     components: { respondentanswer: RespondentAnswer, 'add-update-respondentanswer': AddUpdateRespondentAnswer },
     data: {
       respondentanswers: [],
+      answertocsv: [],
       apiURL: '/api/respondents'
     },
     methods: {
@@ -229,6 +230,7 @@
         
         //Initialize file format you want csv or xls
         var uri = 'data:text/csv;charset=utf-8,' + escape(CSV);
+        var uri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(CSV);
         
         // Now the little tricky part.
         // you can use either>> window.open(uri);
@@ -261,6 +263,7 @@
             }
           });
           this.respondentanswers = q
+          this.answertocsv = q
         })
     }
   })
