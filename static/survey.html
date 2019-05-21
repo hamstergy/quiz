@@ -35,22 +35,33 @@
     props: ['survey'],
     data () {
       return {
+        count: null,
+        user: localStorage.getItem('userId')
       }
+    },
+    created() {
+      axios.post('/api/resans', {user: this.user, survey: this.survey.id})
+        .then((response) => {
+          this.count = response.data.length
+        })
     },
     methods: {
       goTo (id) {
         window.location.href = '/survey/' + id;
-	  },
-	  goToRespondent (id) {
-        window.location.href = '/respondent/' + id;
-	  },
+      },
+      goToRespondent (id) {
+          window.location.href = '/respondent/' + id;
+      },
     },
     template: `
       <div class="card">
         <header class="card-header">
           <p class="card-header-title" @click="goTo(survey.id)">
             {{ survey.name }}
-		      </p>
+          </p>
+          <a class="card-header-icon">
+            Собрано: {{count}}
+          </a>
         </header>
       </div>
     `

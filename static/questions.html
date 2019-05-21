@@ -100,7 +100,7 @@
       addSurvey (survey) {
         return axios.post('/api/respondents', survey)
           .then((response) => {
-            // window.location.href = '/surveys/';
+            window.location.href = '/surveys/';
           })
       },
       sendToSputnic (value) {
@@ -153,7 +153,6 @@
               // this.respondentanswer.content += "<p>" + answer + "</p>";
               json[this.questions[value].name] = this.questions[value].Answers;
           }
-          console.log(json);
         }
         this.respondentanswer.content = JSON.stringify(json);
         this.addSurvey(this.respondentanswer);
