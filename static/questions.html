@@ -56,6 +56,7 @@
             </div>
           </template>
           <div class="field" v-if="questions">
+            <p class="help is-danger" v-for="error in errors">{{error}}</p>
             <div class="control">
               <button class="button is-success">Отправить</button>
             </div> 
@@ -70,6 +71,7 @@
   new Vue({
     el: '#app',
     data: {
+      errors: [],
       questions: [],
       oneChoose: [],
       respondentanswer: {
@@ -78,20 +80,7 @@
         surveyId: '',
         userId: localStorage.getItem('userId')
       },
-      apiURL: '/api/questions',
-      typeOptions: [
-          { text: 'Выберите тип вопроса', value: '' },
-          { text: 'Текст (однострочный)', value: 0 },
-          { text: 'Текст (многострочный)', value: 1 },
-          { text: 'Email адрес', value: 2 },
-          { text: 'ИНН (12 чисел)', value: 3 },
-          { text: 'Целое число', value: 4 },
-          { text: 'Вещественное число', value: 5 },
-          { text: 'Список ответов (один вариант ответа)', value: 6 },
-          { text: 'Дата', value: 7 },
-          { text: 'Телефон', value: 8 },
-          { text: 'Список ответов (много вариантов ответа)', value: 9 }
-        ]
+      apiURL: '/api/questions'
     },
     created: function(){
       var pageURL =  window.location.href;
@@ -124,18 +113,43 @@
             })
             .then(res => console.log('Send to eSputnic!'))
       },
+      validEmail: function (email) {
+        var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(email);
+      },
+      validPhone: function (phone) {
+        var re = /^\d{11}$/;
+        return re.test(phone);
+      },
       validate() {
         let value = 0;
         let question = '';
         let answer = '';
         let json = {};
+        this.errors = [];
         for (value; value< this.questions.length; value++) {
           // question = this.questions[value].name;
           // this.respondentanswer.content += "<h3>" + question + "</h3>";
           
           if (this.questions[value].type == 2) {
+            if (!this.questions[value].Answers) {
+              this.errors.push('Укажите электронную почту.');
+            } else if (!this.validEmail(this.questions[value].Answers)) {
+              this.errors.push('Укажите корректный адрес электронной почты.');
+            } else {
               this.respondentanswer.name = this.questions[value].Answers;
               this.sendToSputnic(this.respondentanswer.name);
+            }
+          }
+          if (this.questions[value].type == 8) {
+            let number = this.questions[value].Answers.replace(/[^0-9]/, '');
+            if (!this.questions[value].Answers) {
+              this.errors.push('Укажите номер телефона.');
+            } else if (!this.validPhone(number)) {
+              this.errors.push('Укажите корректный номер телефона. Пример 87775552211');
+            } else {
+              json[this.questions[value].name] = number;
+            }
           }
           if (this.questions[value].type == 9) {
             json[this.questions[value].name] = [];
@@ -150,14 +164,19 @@
             // this.respondentanswer.content += "<p>" + this.oneChoose[value] + "</p>";
             json[this.questions[value].name] = this.oneChoose[value];
           }
-          else if(this.questions[value].type != 9 && this.questions[value].type != 6) {
+          else if(this.questions[value].type != 9 && this.questions[value].type != 6 && this.questions[value].type != 8) {
               answer = this.questions[value].Answers;
               // this.respondentanswer.content += "<p>" + answer + "</p>";
               json[this.questions[value].name] = this.questions[value].Answers;
           }
         }
-        this.respondentanswer.content = JSON.stringify(json);
-        this.addSurvey(this.respondentanswer);
+        if (!this.errors.length){
+          this.respondentanswer.content = JSON.stringify(json);
+          this.addSurvey(this.respondentanswer);
+        } else {
+
+        }
+
       }
     },
     beforeMount () {
