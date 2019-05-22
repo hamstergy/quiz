@@ -144,7 +144,7 @@
           if (this.questions[value].type == 8) {
             let number = this.questions[value].Answers.replace(/[^0-9]/, '');
             if (number < 80000000000 && number > 70000000000) {
-              number = number + 10000000000;
+              number = parseInt(number) + 10000000000;
             }
             if (!this.questions[value].Answers) {
               this.errors.push('Укажите номер телефона.');
