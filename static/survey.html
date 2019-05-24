@@ -19,12 +19,23 @@
       margin-right: auto;
       margin-left: auto;
     }
+    .logo{
+      height: 50px;
+    }
+    @media only screen and (max-width: 400px) {
+      .logo{
+        height: 40px;
+      }
+    }
   </style>
 </head>
 <body>
   <div id="app" class="container">
     <section class="section section-container" style="padding-top: 24px; padding-bottom: 5px;">
-        <h2 class="title">Опросы</h2>
+        <h2 class="title is-inline-block">Опросы</h2>
+        <div class="is-pulled-right">
+          <img class="logo" src="/images/logo1.png" alt="Technodom">
+        </div>
         <survey v-for="survey in surveys"
             :key="survey.name"
             :survey="survey"/>

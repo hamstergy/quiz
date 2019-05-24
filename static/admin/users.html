@@ -47,6 +47,7 @@
         password: this.user ? this.user.password : '',
         city: this.user ? this.user.city : '',
         shop: this.user ? this.user.shop : '',
+        phone: this.user ? this.user.phone : '',
         cities: [
           "Выберите город",
           "Алматы",
@@ -172,13 +173,14 @@
         })
       },
       save() {
-        this.$emit('save-user', { id: this.id, name: this.name, email: this.email, password: this.password, city: this.city, shop: this.shop })
+        this.$emit('save-user', { id: this.id, name: this.name, email: this.email, password: this.password, city: this.city, shop: this.shop, phone: this.phone })
         if (!this.id) {
           this.name = '',
           this.email = '',
           this.password = '',
           this.city = '',
-          this.shop = ''
+          this.shop = '',
+          this.phone = ''
         }
 	    }
     },
@@ -195,6 +197,12 @@
       <label>E-mail</label>
       <div class="control">
         <input class="input" type="text" v-model="email">
+      </div> 
+    </div>
+    <div class="field">
+      <label>Телефон</label>
+      <div class="control">
+        <input class="input" type="text" v-model="phone">
       </div> 
     </div>
     <div class="field">

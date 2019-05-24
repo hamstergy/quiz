@@ -19,12 +19,23 @@
       margin-right: auto;
       margin-left: auto;
     }
+    .logo{
+      height: 50px;
+    }
+    @media only screen and (max-width: 400px) {
+      .logo{
+        height: 40px;
+      }
+    }
   </style>
 </head>
 <body>
   <div id="app" class="container">
     <section class="section section-container" style="padding-top: 24px; padding-bottom: 5px;">
-        <h2 class="title">Вопросы</h2>
+        <h2 class="title is-inline-block">Вопросы</h2>
+        <div class="is-pulled-right">
+          <img class="logo" src="/images/logo1.png" alt="Technodom">
+        </div>
         <form class="form" @submit.prevent="validate">
           <template v-for="(question,index) in questions">
             <div class="field" v-if="question.type != 9 && question.type != 6">
@@ -55,11 +66,18 @@
               </div>
             </div>
           </template>
-          <div class="field" v-if="questions">
+          <div class="field">
             <p class="help is-danger" v-for="error in errors">{{error}}</p>
+          </div>
+          <div class="field is-grouped" v-if="questions">
             <div class="control">
               <button class="button is-success">Отправить</button>
-            </div> 
+            </div>
+            <p class="control">
+              <a class="button" href="/surveys">
+                Назад
+              </a>
+            </p>
           </div>
         </form>
     </section>

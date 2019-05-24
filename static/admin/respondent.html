@@ -257,9 +257,11 @@
           response.data.forEach(function(element) {
             if (element.surveyId == idUrl) {
               let user = [];
-              user['userName'] = element.User.name;
-              user['Город'] = element.User.city;
-              user['Магазин'] = element.User.shop;
+              user['manager'] = element.User.name;
+              user['city'] = element.User.city;
+              user['store'] = element.User.shop;
+              user['managerMail'] = element.User.email;
+              user['managerPhone'] = element.User.phone;
               var insideContent = JSON.parse(element.content);
               let merged = {...element, ...insideContent, ...user};
               q.push(merged);
