@@ -36,7 +36,11 @@
         <div class="is-pulled-right">
           <img class="logo" src="/images/logo1.png" alt="Technodom">
         </div>
-        <div class="content">{{ questions[0].Survey.description }}</div>
+
+        <div class="content">
+          <h4>{{ questions[0].Survey.name }}</h4>
+          {{ questions[0].Survey.description }}
+        </div>
         <form class="form" @submit.prevent="validate">
           <template v-for="(question,index) in questions">
             <div class="field" v-if="question.type != 9 && question.type != 6">
