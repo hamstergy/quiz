@@ -37,7 +37,7 @@
           <img class="logo" src="/images/logo1.png" alt="Technodom">
         </div>
 
-        <div class="content">
+        <div v-if="!loading" class="content">
           <h4>{{ questions[0].Survey.name }}</h4>
           {{ questions[0].Survey.description }}
         </div>
@@ -97,6 +97,7 @@
       errors: [],
       questions: [],
       oneChoose: [],
+      loading: false,
       placeholder: [
         'Текст (однострочный)',
         'Текст (многострочный)',
@@ -220,6 +221,7 @@
     beforeMount () {
       var pageURL =  window.location.href;
       var idUrl = pageURL.substr(pageURL.lastIndexOf('/') + 1);
+      this.loading = true;
       axios.get(this.apiURL)
         .then((response) => {
           const q = []
@@ -228,7 +230,8 @@
               q.push(element);
             }
           });
-          this.questions = q
+          this.questions = q;
+          this.loading = false;
         })
     }
   })
