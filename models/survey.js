@@ -1,7 +1,8 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const Survey = sequelize.define('Survey', {
-    name: DataTypes.STRING
+    name: DataTypes.STRING,
+    description: DataTypes.STRING
   }, {});
   Survey.associate = function(models) {
     // Survey.hasMany(models.Question);

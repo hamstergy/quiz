@@ -41,14 +41,16 @@
     data () {
       return {
         id: this.survey ? this.survey.id : null,
-        name: this.survey ? this.survey.name : ''
+        name: this.survey ? this.survey.name : '',
+        description: this.survey ? this.survey.description : ''
       }
     },
     methods: {
       save() {
-        this.$emit('save-survey', { id: this.id, name: this.name })
+        this.$emit('save-survey', { id: this.id, name: this.name, description: this.description })
         if (!this.id) {
-          this.name = ''
+          this.name = '',
+          this.description = ''
         }
       }
     },
@@ -59,6 +61,12 @@
             <label>Название опроса</label>
             <div class="control">
               <input class="input" type="text" v-model="name">
+            </div> 
+        </div>
+        <div class="field">
+            <label>Описание</label>
+            <div class="control">
+              <textarea class="textarea" v-model="description"></textarea>
             </div> 
         </div>
         <div class="field">
