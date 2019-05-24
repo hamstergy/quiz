@@ -41,7 +41,7 @@
             <div class="field" v-if="question.type != 9 && question.type != 6">
               <label class="label">{{ question.name }}</label>
                 <div class="control">
-                  <input class="input" type="text" placeholder="e.g Alex Smith" v-model="question.Answers">
+                  <input class="input" type="text" :placeholder="placeholder[question.type]" v-model="question.Answers">
                 </div>
             </div>
             <div class="field" v-if="question.type == 6">
@@ -92,6 +92,18 @@
       errors: [],
       questions: [],
       oneChoose: [],
+      placeholder: [
+        'Текст (однострочный)',
+        'Текст (многострочный)',
+        'info@technodom.kz',
+        '981630432567',
+        'Целое число',
+        'Вещественное число',
+        'Список ответов (один вариант ответа)',
+        '23.05.2019',
+        '87775552233',
+        'Список ответов (много вариантов ответа)'
+      ],
       respondentanswer: {
         name: '',
         content: '',
