@@ -1,6 +1,6 @@
 # quiz project
 
-A Quiz project, Using Sequelize.js and mySQL in an Express.js App] demonstrating how to use Vue.js, Node.js, Express.js and sequelize.js in combination with a mySQL database.
+A Quiz project, Using Sequelize.js and SQLite in an Express.js App. Use Vue.js, Node.js, Express.js and sequelize.js in combination with a SQLite database.
 
 ## Usage
 
